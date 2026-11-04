@@ -1,8 +1,8 @@
 // ==UserScript==
-// @name         Dugout Unified Tools V57.0
+// @name         Dugout Unified Tools V58.0
 // @namespace    http://tampermonkey.net/
-// @version      57.0
-// @description  Ferramenta completa com Painel de Treinamento, OPS, Mapeador e Atirador.
+// @version      58.0
+// @description  Ferramenta completa com Painel de Treinamento, OPS, Mapeador, Atirador e Efetividade.
 // @author       Você
 // @match        https://www.dugout-online.com/*
 // @grant        GM_xmlhttpRequest
@@ -120,14 +120,14 @@
         function applyBadge(row, isSpreadsheet) {
             const cellSelector = isSpreadsheet ? '.genie-ss-ops' : '.genie-ops';
             const genieCells = row.querySelectorAll(cellSelector);
-            if (genieCells.length < 2) return;
+            if (genieCells.length < 2) return; 
             const highCell = genieCells[genieCells.length - 1];
-            if (highCell.querySelector('.high-badge-wrapper')) return;
+            if (highCell.querySelector('.high-badge-wrapper')) return; 
 
             let values = []; let posText = "";
-            if (isSpreadsheet) posText = row.cells[1]?.innerText.trim() || "";
-            else posText = row.querySelector('.do-col-pos')?.innerText.trim() || row.cells[1]?.innerText.trim() || "";
-
+            if (isSpreadsheet) posText = row.cells[1]?.innerText.trim() || ""; 
+            else posText = row.querySelector('.do-col-pos')?.innerText.trim() || row.cells[1]?.innerText.trim() || ""; 
+            
             posText = posText.replace(/[^A-Z]/g, '').substring(0, 2);
             if (!posText) return;
 
@@ -146,9 +146,9 @@
                 const highValueNaTela = parseInt(highCell.innerText.trim().replace(/[^0-9]/g, ''));
                 if (!isNaN(highValueNaTela) && highValueNaTela > result.ops) {
                     const badgeStyle = getBadgeStyle(result.highPos);
-                    const dataV = highCell.getAttribute('data-v');
+                    const dataV = highCell.getAttribute('data-v'); 
                     highCell.innerHTML = `<div class="high-badge-wrapper" style="display: flex; align-items: center; justify-content: center; gap: 4px;"><span style="font-weight: bold; color: inherit;">${highValueNaTela}</span><span style="${badgeStyle} font-size: 9px; font-weight: bold; padding: 1px 4px; border-radius: 4px; text-transform: uppercase;">${result.highPos}</span></div>`;
-                    if (dataV) highCell.setAttribute('data-v', dataV);
+                    if (dataV) highCell.setAttribute('data-v', dataV); 
                 }
             }
         }
@@ -290,7 +290,7 @@
         if (isAutoPage && !stopMapeador) {
             let currentPageEl = document.querySelector('.do-se-page.is-current'); let nextPageBtn = null;
             if (currentPageEl) { let currPage = parseInt(currentPageEl.innerText); nextPageBtn = document.querySelector(`button.do-se-page[onclick*="doSePage(${currPage + 1})"]`) || document.querySelector(`.do-se-page[onclick*="${currPage + 1}"]`); }
-            if (nextPageBtn) { logFn(`📄 Indo para a página seguinte...`); await sleep(2000); nextPageBtn.click(); }
+            if (nextPageBtn) { logFn(`📄 Indo para a página seguinte...`); await sleep(2000); nextPageBtn.click(); } 
             else {
                 let countrySelect = document.querySelector('select[name="from"]');
                 if (countrySelect) {
@@ -399,7 +399,7 @@
     }
 
     // ==========================================
-    // WIDGET DE TREINAMENTO FIXO
+    // PARTE 6: DASHBOARD DE TREINAMENTO
     // ==========================================
     function createDashboard() {
         const qualityContainer = document.querySelector('.do-tr-quality');
@@ -429,7 +429,7 @@
             width: 100%;
             box-sizing: border-box;
         `;
-
+        
         const trCols = document.querySelector('.do-tr-cols');
         if (trCols) {
             trCols.parentNode.insertBefore(dashboard, trCols);
@@ -459,8 +459,7 @@
                 padding: 8px;
                 box-shadow: 0 1px 3px rgba(0,0,0,0.1);
             `;
-
-            // Adicionado o Badge de "Quanto Falta"
+            
             card.innerHTML = `
                 <div style="font-size: 10px; font-weight: bold; color: #555; text-transform: uppercase;">${nomes[area] || area}</div>
                 <div style="display: flex; align-items: center; gap: 6px; margin: 4px 0;">
@@ -488,20 +487,20 @@
         const mapSkill = { gk: 'gk', df: 'df', mf: 'mf', fw: 'fw', phy: 'phy', tac: 'tac', yth: 'yth' };
 
         const brutoCalculado = { gk: 0, df: 0, mf: 0, fw: 0, phy: 0, tac: 0, yth: 0 };
-
+        
         document.querySelectorAll('.do-tr-coach').forEach(coach => {
             const selectFocus = coach.querySelector('.do-tr-focus');
             if (!selectFocus) return;
-
-            const focusVal = selectFocus.value;
+            
+            const focusVal = selectFocus.value; 
             const mapFocus = { '2': 'gk', '3': 'df', '4': 'mf', '5': 'fw', '7': 'yth' };
 
             Object.keys(mapSkill).forEach(area => {
                 const skillInput = coach.querySelector(`.do-tr-cskill[data-skill="${mapSkill[area]}"]`);
                 if (!skillInput) return;
-
+                
                 let skillVal = parseInt(skillInput.value) || 0;
-
+                
                 if (mapFocus[focusVal] === area) brutoCalculado[area] += skillVal;
                 else if (focusVal === '1') brutoCalculado[area] += (skillVal * 0.15);
             });
@@ -514,9 +513,9 @@
 
             const valorFinal = parseInt(ballsDiv.getAttribute('data-val')) || 0;
             const meta = metas[area] || 67;
-
+            
             let valorBruto = Math.round(brutoCalculado[area]);
-
+            
             if (valorBruto === 0 && valorFinal > 0) {
                 if (area === 'phy' || area === 'tac') valorBruto = Math.round(valorFinal / 0.855);
                 else valorBruto = Math.round(valorFinal / 3);
@@ -528,11 +527,11 @@
 
             if (valEl && progEl && badgeEl) {
                 if (valorBruto > meta && valorFinal < 200) valorBruto = meta;
-
+                
                 const falta = meta - valorBruto;
 
                 valEl.innerText = valorBruto;
-
+                
                 if (falta <= 0) {
                     badgeEl.innerText = '✔';
                     badgeEl.style.background = '#4CAF50';
@@ -542,7 +541,7 @@
                     badgeEl.style.background = '#f39c12';
                     badgeEl.style.color = '#fff';
                 }
-
+                
                 let porcentagem = Math.min((valorBruto / meta) * 100, 100);
                 progEl.style.width = `${porcentagem}%`;
 
@@ -553,6 +552,97 @@
                 else { valEl.style.color = '#5e81ac'; progEl.style.background = '#5e81ac'; }
             }
         });
+    }
+
+    // ==========================================
+    // PARTE 7: EFETIVIDADE DOS TÉCNICOS
+    // ==========================================
+    function initCoachEffectiveness() {
+        if (document.getElementById('unified-coach-effectiveness')) return;
+
+        const quality = document.querySelector('.do-tr-quality') || document.querySelector('.training_quality_wrapper');
+        if (!quality) return;
+
+        const coaches = document.querySelectorAll('.do-tr-coach, .coach_cell').length;
+        if (coaches === 0) return;
+
+        const box = document.createElement('div'); 
+        box.id = 'unified-coach-effectiveness'; 
+        box.className = 'genie-training-controls';
+        box.style.cssText = 'display: flex; align-items: center; gap: 8px; margin: 10px 0; flex-wrap: wrap;';
+        
+        const result = document.createElement('span'); 
+        result.setAttribute('role', 'status'); 
+        result.textContent = 'Efetividade dos técnicos: —';
+        
+        const button = document.createElement('button'); 
+        button.type = 'button';
+        button.textContent = 'Calcular';
+        button.className = 'do-btn do-btn-outline do-btn-sm';
+
+        button.addEventListener('click', async () => {
+            const urls = [...new Set(Array.from(document.querySelectorAll('.do-tr-prow a[href*="/players/"], tr[class*="row"] a[href*="/players/"]'), a => a.href))];
+            
+            button.disabled = true; 
+            result.textContent = 'Consultando contratos…';
+            
+            let contracted = 0, failures = 0;
+
+            for (let i = 0; i < urls.length; i += 5) {
+                const batch = await Promise.all(urls.slice(i, i + 5).map(async url => {
+                    try {
+                        const response = await fetch(url);
+                        if (!response.ok) throw new Error(String(response.status));
+                        
+                        const doc = new DOMParser().parseFromString(await response.text(), 'text/html');
+                        let contractValue = null;
+                        
+                        const elements = Array.from(doc.querySelectorAll('div, span, td, th, p, b'));
+                        for (const el of elements) {
+                            const text = el.textContent.trim().toLowerCase();
+                            if (text === 'contrato' || text === 'contract') {
+                                let valorEl = el.nextElementSibling || el.parentElement?.nextElementSibling;
+                                if (valorEl) {
+                                    contractValue = valorEl.textContent.trim();
+                                }
+                                break;
+                            }
+                        }
+
+                        if (!contractValue) {
+                            const bodyText = doc.body.textContent;
+                            const match = bodyText.match(/(?:contrato|contract)\s*(?:\n|\r|:)*\s*([^\n\r]+)/i);
+                            if (match && match[1]) contractValue = match[1].trim();
+                        }
+
+                        if (!contractValue) throw new Error('Contrato não encontrado');
+                        
+                        const isNotContracted = contractValue === '/' || contractValue === '' || contractValue.toLowerCase() === 'no contract' || contractValue.toLowerCase() === 'sem contrato';
+                        
+                        return !isNotContracted; 
+                    } catch (error) { 
+                        console.warn('[Unified] Contrato indisponível:', url, error); 
+                        return null; 
+                    }
+                }));
+                
+                contracted += batch.filter(value => value === true).length;
+                failures += batch.filter(value => value === null).length;
+            }
+
+            if (failures) {
+                result.textContent = 'Efetividade indisponível: ' + failures + ' contrato(s) não lido(s).';
+            } else {
+                const excess = Math.max(0, contracted - coaches * 7);
+                const percentages = [100, 99, 98, 96, 92, 88, 82, 76, 68, 60, 50, 40, 28, 16];
+                result.textContent = 'Jogadores contratados: ' + contracted + ' · Efetividade dos técnicos: ' + (excess > 13 ? 10 : percentages[excess]) + '%';
+            }
+            
+            button.disabled = false;
+        });
+
+        box.append(result, button); 
+        quality.after(box);
     }
 
     // ==========================================
@@ -572,8 +662,9 @@
     }
 
     setInterval(() => {
-        if (document.querySelector('.do-tr-quality')) {
+        if (document.querySelector('.do-tr-quality') || document.querySelector('.training_quality_wrapper')) {
             createDashboard();
+            initCoachEffectiveness();
         }
     }, 1000);
 
